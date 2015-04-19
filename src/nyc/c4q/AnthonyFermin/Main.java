@@ -17,7 +17,7 @@ public class Main
 
             for(int j = 1; j < COLUMNS; j++){
 
-                terminal.moveTo( i, j );
+                terminal.moveTo( i+1, j );
                 terminal.write(Character.toString(board[i][j]) );
             }
         }
@@ -125,75 +125,97 @@ public class Main
         final int ROWS = 25;
         final int COLUMNS = 75;
 
+        String response = "";
         char[][] board = new char[ROWS+2][COLUMNS+2];
-
-        board = clearBoard(board);
 
         Scanner consoleReader = new Scanner(System.in);
 
-        System.out.print ("Which file do you want to open? (ie: life5.dat): ");
-
-        String filename = "/Users/c4q-anthonyf/Desktop/accesscode/GameOfLife/src/nyc/c4q/AnthonyFermin/" + consoleReader.next();
-        File file = new File(filename);
-        Scanner fileReader = null;
-
-        try
+        do
         {
-            fileReader = new Scanner (file);
-        }
-        catch (Exception e)
-        {
-            System.out.print("file " + file + " does not exist");
-            System.exit(0);
-        }
+            System.out.print("Which file do you want to open? (ie: life5.dat): ");
 
-        for (int i = 1; i <= ROWS; i++)
-        {
-            String line = fileReader.nextLine();
+            String filename = "/Users/c4q-anthonyf/Desktop/accesscode/GameOfLife/src/nyc/c4q/AnthonyFermin/" + consoleReader
+                    .next();
+            File file = new File(filename);
+            Scanner fileReader = null;
 
-            for(int j = 1; j <= line.length(); j++){
-                board[i][j] = line.charAt(j-1);
-            }
-        }
-
-        // Create the terminal.
-        final AnsiTerminal terminal = new AnsiTerminal();
-
-        // When the program shuts down, reset the terminal to its original state.
-        // This code makes sure the terminal is reset even if you kill your
-        // program by pressing Control-C.
-        Runtime.getRuntime().addShutdownHook(new Thread()
-        {
-            public void run()
+            try
             {
-                terminal.showCursor();
-                terminal.reset();
-                terminal.scroll(1);
-                terminal.moveTo(ROWS, 0);
+                fileReader = new Scanner(file);
             }
-        });
-
-        // Clear the screen to black.
-        terminal.setBackgroundColor(AnsiTerminal.Color.BLACK);
-        terminal.clear();
-        // Don't show the cursor.
-        terminal.hideCursor();
-
-        while(true)
-        {
-            char[][] prevBoard = board;
-            printBoard(board, ROWS, COLUMNS, terminal);
-            board = iterateBoard(board);
-
-            if(boardsEqual(prevBoard, board)){
-                break;
+            catch(Exception e)
+            {
+                System.out.print("file " + file + " does not exist");
+                System.exit(0);
             }
 
-            try {
-                Thread.sleep(100);                 //1000 milliseconds is one second.
-            } catch(InterruptedException ex) {
-                Thread.currentThread().interrupt();
+            board = clearBoard(board);
+
+            for(int i = 1; i <= ROWS; i++)
+            {
+                String line = fileReader.nextLine();
+
+                for(int j = 1; j <= line.length(); j++)
+                {
+                    board[i][j] = line.charAt(j - 1);
+                }
             }
-        }
+
+            // Create the terminal.
+            final AnsiTerminal terminal = new AnsiTerminal();
+
+            // When the program shuts down, reset the terminal to its original state.
+            // This code makes sure the terminal is reset even if you kill your
+            // program by pressing Control-C.
+            Runtime.getRuntime().addShutdownHook(new Thread()
+            {
+                public void run()
+                {
+                    terminal.showCursor();
+                    terminal.reset();
+                    terminal.scroll(1);
+                    terminal.moveTo(ROWS, 0);
+                }
+            });
+
+            // Clear the screen to black.
+            terminal.setBackgroundColor(AnsiTerminal.Color.BLACK);
+            terminal.clear();
+            // Don't show the cursor.
+            terminal.hideCursor();
+
+            int generation = 1;
+            while(true)
+            {
+                char[][] prevBoard = board;
+                printBoard(board, ROWS, COLUMNS, terminal);
+                board = iterateBoard(board);
+
+                if(boardsEqual(prevBoard, board))
+                {
+                    break;
+                }
+
+
+                generation++;
+                terminal.moveTo(0,COLUMNS/2 - 7);
+                terminal.write("Generation: " + generation);
+
+                try
+                {
+                    Thread.sleep(100);                 //1000 milliseconds is one second.
+                }
+                catch(InterruptedException ex)
+                {
+                    Thread.currentThread().interrupt();
+                }
+            }
+            System.out.println("Do you want to try a different file? [Y/N]");
+            response = consoleReader.next();
+            System.out.println();
+            System.out.println();
+
+
+        }while(response.equalsIgnoreCase("Y"));
     }
 }
